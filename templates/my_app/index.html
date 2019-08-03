@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>New craigslist search</h1>
+    <form action="{% url 'new_search' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="search" placeholder="search">
+        <input type="submit" value="submit">
+    </form>
+
+
+{% endblock content %}
