@@ -50,10 +50,11 @@
             <a href="{{ title.1 }}"><p>{{ title.0 }}</p></a>
         {% endfor %}
 
-        <blockquote class="imgur-embed-pub" lang="en" data-id="a/tlXoNIY" data-context="false"><a
-                href="//imgur.com/a/tlXoNIY"></a></blockquote>
-        <script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
     </div>
+
+    {% for image_url in final_image_urls %}
+        <img src="{{ image_url }}" alt="">
+    {% endfor %}
 
 
 {% endblock content %}
