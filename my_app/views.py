@@ -1,4 +1,5 @@
 import requests
+import re
 from requests.compat import quote_plus
 from django.shortcuts import render
 from .models import Search
@@ -35,31 +36,42 @@ def new_search(request):
         response = requests.get(final_url)
         # Extracting the source code of the page.
         data = response.text
-        # print(data)
         # Passing the source code to Beautiful Soup to create a BeautifulSoup object for it.
         soup = BeautifulSoup(data, features='html.parser')
         # Extracting all the <a> tags whose class name is 'result-title' into a list.
-        titles = soup.findAll('a', {'class': 'result-title'})
+        post_listings = soup.find_all('li', {'class': 'result-row'})
 
-        images = soup.find_all("a", {"class": "result-image"})
+        final_postings = []
+        for post in post_listings:
+            post_title = post.find(class_='result-title').text
+            post_url = post.find('a').get('href')
 
-        image_url = "https://images.craigslist.org/{}_300x300.jpg"
-
-        final_image_urls = []
-        for image in images:
-            if image.get('data-ids'):
-                # append the image URL to final images list
-                final_image_urls.append(image_url.format((image.get('data-ids').split(',')[0].split(':')[1])))
+            if post.find(class_='result-price'):
+                post_price = post.find(class_='result-price').text
             else:
-                # append a "NOT AVAILABLE" image URL to final images list
-                final_image_urls.append('https://craigslist.org/images/peace.jpg')
+                new_response = requests.get(post_url)
+                new_data = new_response.text
+                new_soup = BeautifulSoup(new_data, features='html.parser')
+                post_text = new_soup.find(id='postingbody').text
 
-        print(final_image_urls)
+                r1 = re.findall(r'\$\w+', post_text)
+                if r1:
+                    post_price = r1[0]
+                else:
+                    post_price = 'N/A'
+
+
+            if post.find(class_='result-image').get('data-ids'):
+                post_image_id = post.find(class_='result-image').get('data-ids').split(',')[0].split(':')[1]
+                post_image_url = "https://images.craigslist.org/{}_300x300.jpg".format(post_image_id)
+            else:
+                post_image_url = 'https://craigslist.org/images/peace.jpg'
+
+            final_postings.append((post_title, post_url, post_price, post_image_url))
 
         stuff_for_frontend = {
-            'titles': [(title.text, title.get('href')) for title in titles],
             'search': search,
-            'final_image_urls': final_image_urls,
+            'final_postings': final_postings,
         }
 
         return render(request, 'my_app/new_search.html', stuff_for_frontend)

@@ -4,7 +4,7 @@
 
 
 {% block content %}
-    <h1 style="text-align: center">What do you want to search for on Craigslist?</h1>
+    <h1 style="text-align: center">What do you want to search for on Codedaddies List?</h1>
     <div class="row">
         <div class="col s4">
             <!-- Promo Content 1 goes here -->
@@ -36,25 +36,36 @@
     </div>
 
 
-        <form action="{% url 'new_search' %}" method="post">
-            {% csrf_token %}
-            <input type="text" name="search" placeholder="search">
-            <input type="text" name="min_price" placeholder="min price">
-            <input type="text" name="max_price" placeholder="max price">
-            <input type="submit" value="submit">
-        </form>
+    <form action="{% url 'new_search' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="search" placeholder="search">
+        <input type="text" name="min_price" placeholder="min price">
+        <input type="text" name="max_price" placeholder="max price">
+        <input type="submit" value="submit">
+    </form>
 
     <div class="center">
         <h2> {{ search | title }} </h2>
-        {% for title in titles %}
-            <a href="{{ title.1 }}"><p>{{ title.0 }}</p></a>
-        {% endfor %}
 
     </div>
 
-    {% for image_url in final_image_urls %}
-        <img src="{{ image_url }}" alt="">
-    {% endfor %}
+    <div class="row">
+        {% for posting in final_postings %}
+            <div class="col s4">
+                <div class="card">
+                    <div class="card-image">
+                        <img src="{{ posting.3 }}" alt="">
+                    </div>
+                    <div class="card-content">
+                        <p>{{ posting.0 }}</p>
+                    </div>
+                    <div class="card-action">
+                        <a href="{{ posting.1 }}">View listing: Price {{ posting.2 }}</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 
 
 {% endblock content %}
